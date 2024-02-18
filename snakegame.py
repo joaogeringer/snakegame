@@ -1,28 +1,24 @@
 # Example file showing a basic pygame "game loop"
-import dt
 import pygame
 import random
-
-from xlrd.formatting import x
+from xlrd.formatting import *
 
 # pygame setup
 pygame.init()
-screen_width = 1280
-screen_height = 720
-screen = pygame.display.set_mode((screen_width, screen_height))
+square_width = 800
+pixel_width = 50
+screen = pygame.display.set_mode([square_width] * 2)
 clock = pygame.time.Clock()
 running = True
 
 def generate_starting_position():
-    position_range = (pixel_width // 2, pixel_width)
-    return [random.randrange(*range), random.randrange(*range)]
-
-#playground
-pixel_width = 50
+    position_range = (pixel_width // 2, square_width - pixel_width // 2, pixel_width)
+    return {random.randrange(*position_range), random.randrange(*position_range)}
 
 #snake
 snake_pixel = pygame.rect.Rect([0, 0, pixel_width, pixel_width])
 snake = [snake_pixel.copy()]
+snake_direction = (0, 0)
 
 #target
 target = pygame.rect.Rect([0, 0, pixel_width, pixel_width])
@@ -42,13 +38,17 @@ while running:
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
-        player_pos:y -= 300 * dt
+        snake_direction = (0, - pixel_width)
     if keys[pygame.K_s]:
-        player_pos:y += 300 * dt
+        snake_direction = (0, pixel_width)
     if keys[pygame.K_a]:
-        player_pos:x -= 300 * dt
+        snake_direction = (- pixel_width, 0)
     if keys[pygame.K_d]:
-        player_pos:x += 300 * dt
+        snake_direction = (pixel_width, 0)
+
+        snake_pixel.move_ip(snake_direction)
+        snake.append(snake_pixel.copy())
+        snake = snake[-1:]
 
     for snake_part in snake:
         pygame.draw.rect(screen, "green", snake_part)
@@ -58,6 +58,6 @@ while running:
     # flip() the display to put your work on screen
     pygame.display.flip()
 
-    clock.tick(60)  # limits FPS to 60
+    clock.tick(10)  # limits FPS to 60
 
 pygame.quit()
